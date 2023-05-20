@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/moh3a/serverless_go/pkg/user"
@@ -48,12 +47,29 @@ func CreateUser(req events.APIGatewayProxyRequest, tableName string, dynaClient 
 	return apiResponse(http.StatusCreated, result)
 }
 
-func UpdateUser(req events.APIGatewayProxyRequest, tableName string, dynaClient dynamodbiface.DynamoDBAPI) (*events.APIGatewayProxyResponse, error) {
-	fmt.Printf("hello")
+func UpdateUser(req events.APIGatewayProxyRequest, tableName string, dynaClient dynamodbiface.DynamoDBAPI) (
+	*events.APIGatewayProxyResponse, error,
+) {
+	result, err := user.UpdateUser(req, tableName, dynaClient)
+	if err != nil {
+		return apiResponse(http.StatusBadRequest, ErrorBody{
+			aws.String(err.Error()),
+		})
+	}
+	return apiResponse(http.StatusOK, result)
 }
 
-func DeleteUser(req events.APIGatewayProxyRequest, tableName string, dynaClient dynamodbiface.DynamoDBAPI) (*events.APIGatewayProxyResponse, error) {
-	fmt.Printf("hello")
+func DeleteUser(req events.APIGatewayProxyRequest, tableName string, dynaClient dynamodbiface.DynamoDBAPI) (
+	*events.APIGatewayProxyResponse, error,
+) {
+	err := user.DeleteUser(req, tableName, dynaClient)
+
+	if err != nil {
+		return apiResponse(http.StatusBadRequest, ErrorBody{
+			aws.String(err.Error()),
+		})
+	}
+	return apiResponse(http.StatusOK, nil)
 }
 
 func UnhandledMethod() (*events.APIGatewayProxyResponse, error) {
